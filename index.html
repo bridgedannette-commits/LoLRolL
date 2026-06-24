@@ -276,7 +276,7 @@
 </head>
 <body>
     <div class="container">
-        <h1>🎮 Рандом ролей LoL</h1>
+        <h1>Рандом ролей LoL</h1>
         <p class="subtitle">Каждый игрок выбирает роли, которые готов играть (от 1 до 5)</p>
 
         <div class="role-count-info" id="roleCountInfo"></div>
@@ -284,14 +284,14 @@
         <div class="players-grid" id="playersGrid"></div>
 
         <div class="controls">
-            <button class="btn btn-primary" id="randomizeBtn">🎲 Рандомить!</button>
-            <button class="btn btn-secondary" id="resetBtn">🔄 Сбросить все</button>
+            <button class="btn btn-primary" id="randomizeBtn">Рандомнуть!</button>
+            <button class="btn btn-secondary" id="resetBtn">Сбросить все</button>
         </div>
 
         <div class="error-message" id="errorMessage"></div>
 
         <div class="results" id="resultsContainer" style="display: none;">
-            <div class="results-title">⚔️ РАСПРЕДЕЛЕНИЕ РОЛЕЙ ⚔️</div>
+            <div class="results-title">РАСПРЕДЕЛЕНИЕ РОЛЕЙ</div>
             <div class="results-grid" id="resultsGrid"></div>
         </div>
     </div>
@@ -336,7 +336,7 @@
                 return `${emoji} ${r}: ${roleCount[r]}`;
             }).join(' | ');
 
-            info.textContent = `📊 Всего выборов: ${totalSelections} | ${roleInfo}`;
+            info.textContent = `Всего выборов: ${totalSelections} | ${roleInfo}`;
         }
 
         // Создаем карточки игроков

@@ -1,0 +1,593 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Рандом ролей League of Legends</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0a0a1a 0%, #1a1a3e 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border-radius: 24px;
+            padding: 40px;
+            max-width: 1000px;
+            width: 100%;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+        }
+
+        h1 {
+            text-align: center;
+            color: #fff;
+            font-size: 2em;
+            margin-bottom: 10px;
+            text-shadow: 0 0 20px rgba(100, 100, 255, 0.3);
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #8888bb;
+            margin-bottom: 30px;
+            font-size: 0.95em;
+        }
+
+        .players-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .player-card {
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 16px;
+            padding: 18px;
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .player-card:hover {
+            transform: translateY(-2px);
+            border-color: rgba(255, 255, 255, 0.2);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+        }
+
+        .player-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+
+        .color-dot {
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            flex-shrink: 0;
+        }
+
+        .player-name {
+            color: #fff;
+            font-weight: 600;
+            font-size: 1.1em;
+            flex: 1;
+        }
+
+        .role-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            background: rgba(255, 255, 255, 0.15);
+            color: #aaa;
+            font-size: 0.8em;
+            font-weight: 500;
+        }
+
+        .role-selector {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-top: 8px;
+        }
+
+        .role-btn {
+            padding: 5px 12px;
+            border-radius: 12px;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            background: rgba(255, 255, 255, 0.05);
+            color: #aaa;
+            font-size: 0.8em;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-weight: 500;
+        }
+
+        .role-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .role-btn.selected {
+            background: rgba(100, 255, 150, 0.2);
+            border-color: #6aff8a;
+            color: #6aff8a;
+        }
+
+        .controls {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-top: 10px;
+        }
+
+        .btn {
+            padding: 12px 32px;
+            border: none;
+            border-radius: 12px;
+            font-size: 1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #6ab7ff, #4a8fff);
+            color: #fff;
+            box-shadow: 0 4px 20px rgba(74, 143, 255, 0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 30px rgba(74, 143, 255, 0.5);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.1);
+            color: #aaa;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.2);
+            color: #fff;
+        }
+
+        .results {
+            margin-top: 30px;
+            padding-top: 30px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .results-title {
+            color: #8888bb;
+            text-align: center;
+            font-size: 0.9em;
+            margin-bottom: 15px;
+            letter-spacing: 2px;
+        }
+
+        .results-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 12px;
+        }
+
+        .result-item {
+            background: rgba(255, 255, 255, 0.06);
+            border-radius: 12px;
+            padding: 15px;
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            transition: all 0.5s ease;
+            animation: fadeIn 0.5s ease;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: scale(0.9);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        .result-player {
+            font-weight: 600;
+            color: #fff;
+            margin-bottom: 4px;
+        }
+
+        .result-role {
+            font-size: 1.2em;
+            font-weight: 700;
+            padding: 4px 12px;
+            border-radius: 20px;
+            display: inline-block;
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .error-message {
+            color: #ff6b6b;
+            text-align: center;
+            margin-top: 15px;
+            padding: 10px;
+            background: rgba(255, 0, 0, 0.1);
+            border-radius: 8px;
+            display: none;
+            border: 1px solid rgba(255, 0, 0, 0.2);
+        }
+
+        .error-message.show {
+            display: block;
+        }
+
+        .role-hint {
+            color: #666699;
+            font-size: 0.75em;
+            margin-top: 5px;
+        }
+
+        .role-count-info {
+            color: #8888bb;
+            text-align: center;
+            margin-bottom: 20px;
+            font-size: 0.9em;
+            background: rgba(255, 255, 255, 0.05);
+            padding: 10px;
+            border-radius: 12px;
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                padding: 20px;
+            }
+            .players-grid {
+                grid-template-columns: 1fr;
+            }
+            .controls {
+                flex-direction: column;
+            }
+            .btn {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎮 Рандом ролей LoL</h1>
+        <p class="subtitle">Каждый игрок выбирает роли, которые готов играть (от 1 до 5)</p>
+
+        <div class="role-count-info" id="roleCountInfo"></div>
+
+        <div class="players-grid" id="playersGrid"></div>
+
+        <div class="controls">
+            <button class="btn btn-primary" id="randomizeBtn">🎲 Рандомить!</button>
+            <button class="btn btn-secondary" id="resetBtn">🔄 Сбросить все</button>
+        </div>
+
+        <div class="error-message" id="errorMessage"></div>
+
+        <div class="results" id="resultsContainer" style="display: none;">
+            <div class="results-title">⚔️ РАСПРЕДЕЛЕНИЕ РОЛЕЙ ⚔️</div>
+            <div class="results-grid" id="resultsGrid"></div>
+        </div>
+    </div>
+
+    <script>
+        // Настройка игроков с уникальными цветами
+        const players = [
+            { id: 0, name: 'Веселая Капибара', color: '#FF6B6B', roles: [] },
+            { id: 1, name: 'Розовый Слоник', color: '#FF9FF3', roles: [] },
+            { id: 2, name: 'Грустный Енот', color: '#54A0FF', roles: [] },
+            { id: 3, name: 'Сонный Ленивец', color: '#9B59B6', roles: [] },
+            { id: 4, name: 'Хитрый Лис', color: '#FF9F43', roles: [] }
+        ];
+
+        const allRoles = ['Топ', 'Лес', 'Мид', 'Адк', 'Саппорт'];
+        const roleEmojis = {
+            'Топ': '🏔️',
+            'Лес': '🌲',
+            'Мид': '⚡',
+            'Адк': '🏹',
+            'Саппорт': '🛡️'
+        };
+
+        let currentResults = null;
+
+        // Обновление информации о выбранных ролях
+        function updateRoleInfo() {
+            const info = document.getElementById('roleCountInfo');
+            const totalSelections = players.reduce((sum, p) => sum + p.roles.length, 0);
+            
+            // Считаем сколько раз выбрана каждая роль
+            const roleCount = {};
+            allRoles.forEach(r => roleCount[r] = 0);
+            players.forEach(p => {
+                p.roles.forEach(r => {
+                    if (roleCount[r] !== undefined) roleCount[r]++;
+                });
+            });
+
+            const roleInfo = allRoles.map(r => {
+                const emoji = roleEmojis[r] || '';
+                return `${emoji} ${r}: ${roleCount[r]}`;
+            }).join(' | ');
+
+            info.textContent = `📊 Всего выборов: ${totalSelections} | ${roleInfo}`;
+        }
+
+        // Создаем карточки игроков
+        function renderPlayers() {
+            const grid = document.getElementById('playersGrid');
+            grid.innerHTML = '';
+
+            players.forEach((player, index) => {
+                const card = document.createElement('div');
+                card.className = 'player-card';
+
+                const header = document.createElement('div');
+                header.className = 'player-header';
+
+                const dot = document.createElement('div');
+                dot.className = 'color-dot';
+                dot.style.background = player.color;
+
+                const name = document.createElement('span');
+                name.className = 'player-name';
+                name.textContent = player.name;
+
+                const badge = document.createElement('span');
+                badge.className = 'role-badge';
+                badge.textContent = `${player.roles.length} ролей`;
+
+                header.appendChild(dot);
+                header.appendChild(name);
+                header.appendChild(badge);
+
+                const selector = document.createElement('div');
+                selector.className = 'role-selector';
+
+                allRoles.forEach(role => {
+                    const btn = document.createElement('button');
+                    btn.className = 'role-btn';
+                    btn.textContent = role;
+                    if (player.roles.includes(role)) {
+                        btn.classList.add('selected');
+                    }
+                    btn.addEventListener('click', () => toggleRole(index, role));
+                    selector.appendChild(btn);
+                });
+
+                const hint = document.createElement('div');
+                hint.className = 'role-hint';
+                hint.textContent = 'Кликните, чтобы выбрать/убрать роль';
+
+                card.appendChild(header);
+                card.appendChild(selector);
+                card.appendChild(hint);
+                grid.appendChild(card);
+            });
+
+            updateRoleInfo();
+        }
+
+        // Переключение роли
+        function toggleRole(playerIndex, role) {
+            const player = players[playerIndex];
+            const roleIndex = player.roles.indexOf(role);
+
+            if (roleIndex > -1) {
+                player.roles.splice(roleIndex, 1);
+            } else {
+                player.roles.push(role);
+            }
+
+            // Обновляем отображение
+            const cards = document.querySelectorAll('.player-card');
+            const card = cards[playerIndex];
+            const buttons = card.querySelectorAll('.role-btn');
+            const badge = card.querySelector('.role-badge');
+
+            buttons.forEach((btn, idx) => {
+                const roleName = allRoles[idx];
+                btn.classList.toggle('selected', player.roles.includes(roleName));
+            });
+
+            badge.textContent = `${player.roles.length} ролей`;
+
+            // Скрываем результаты при изменении
+            document.getElementById('resultsContainer').style.display = 'none';
+            document.getElementById('errorMessage').classList.remove('show');
+            
+            updateRoleInfo();
+        }
+
+        // Проверка возможности рандома
+        function validateRoles() {
+            // Проверяем, что каждый игрок выбрал хотя бы одну роль
+            for (const player of players) {
+                if (player.roles.length === 0) {
+                    showError(`Игрок "${player.name}" не выбрал ни одной роли!`);
+                    return false;
+                }
+            }
+
+            // Проверяем, что все 5 ролей выбраны хотя бы одним игроком
+            const roleCount = {};
+            allRoles.forEach(r => roleCount[r] = 0);
+            players.forEach(p => {
+                p.roles.forEach(r => {
+                    if (roleCount[r] !== undefined) roleCount[r]++;
+                });
+            });
+
+            const missingRoles = allRoles.filter(r => roleCount[r] === 0);
+            if (missingRoles.length > 0) {
+                showError(`Никто не выбрал роли: ${missingRoles.join(', ')}! Каждая роль должна быть выбрана хотя бы одним игроком.`);
+                return false;
+            }
+
+            return true;
+        }
+
+        // НОВЫЙ АЛГОРИТМ: Поиск с возвратом (backtracking)
+        function findAssignment() {
+            // Создаем копию данных
+            const playersCopy = players.map(p => ({
+                id: p.id,
+                name: p.name,
+                color: p.color,
+                roles: [...p.roles],
+                assigned: false,
+                assignedRole: null
+            }));
+
+            const usedRoles = new Set();
+
+            // Рекурсивная функция поиска
+            function backtrack(playerIndex) {
+                // Если все игроки назначены - успех
+                if (playerIndex === playersCopy.length) {
+                    return true;
+                }
+
+                const player = playersCopy[playerIndex];
+                
+                // Перемешиваем роли для случайности
+                const shuffledRoles = [...player.roles].sort(() => Math.random() - 0.5);
+                
+                for (const role of shuffledRoles) {
+                    if (!usedRoles.has(role)) {
+                        // Назначаем роль
+                        usedRoles.add(role);
+                        player.assignedRole = role;
+                        
+                        // Рекурсивно ищем для следующего игрока
+                        if (backtrack(playerIndex + 1)) {
+                            return true;
+                        }
+                        
+                        // Откатываем
+                        usedRoles.delete(role);
+                        player.assignedRole = null;
+                    }
+                }
+                
+                return false;
+            }
+
+            // Сортируем игроков по количеству ролей (от меньшего к большему) для оптимизации
+            playersCopy.sort((a, b) => a.roles.length - b.roles.length);
+
+            if (backtrack(0)) {
+                // Сортируем обратно по id для отображения
+                const sortedResult = [...playersCopy].sort((a, b) => a.id - b.id);
+                return sortedResult.map(p => ({
+                    player: p.name,
+                    role: p.assignedRole,
+                    color: p.color
+                }));
+            }
+
+            return null;
+        }
+
+        // Основная функция рандома
+        function randomizeRoles() {
+            if (!validateRoles()) return;
+
+            const result = findAssignment();
+
+            if (result) {
+                displayResults(result);
+            } else {
+                showError('Не удалось найти подходящее распределение. Попробуйте добавить больше вариантов ролей для игроков.');
+            }
+        }
+
+        function displayResults(results) {
+            currentResults = results;
+            const container = document.getElementById('resultsContainer');
+            const grid = document.getElementById('resultsGrid');
+            grid.innerHTML = '';
+
+            results.forEach(item => {
+                const div = document.createElement('div');
+                div.className = 'result-item';
+
+                const playerName = document.createElement('div');
+                playerName.className = 'result-player';
+                playerName.textContent = item.player;
+                playerName.style.color = item.color;
+
+                const roleSpan = document.createElement('div');
+                roleSpan.className = 'result-role';
+                roleSpan.textContent = `${roleEmojis[item.role] || ''} ${item.role}`;
+                roleSpan.style.borderColor = item.color;
+
+                div.appendChild(playerName);
+                div.appendChild(roleSpan);
+                grid.appendChild(div);
+            });
+
+            container.style.display = 'block';
+            document.getElementById('errorMessage').classList.remove('show');
+
+            // Прокручиваем к результатам
+            container.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+
+        function showError(message) {
+            const errorEl = document.getElementById('errorMessage');
+            errorEl.textContent = '⚠️ ' + message;
+            errorEl.classList.add('show');
+            document.getElementById('resultsContainer').style.display = 'none';
+        }
+
+        function resetAll() {
+            players.forEach(p => p.roles = []);
+            renderPlayers();
+            document.getElementById('resultsContainer').style.display = 'none';
+            document.getElementById('errorMessage').classList.remove('show');
+            currentResults = null;
+        }
+
+        // Инициализация
+        renderPlayers();
+
+        // Обработчики событий
+        document.getElementById('randomizeBtn').addEventListener('click', randomizeRoles);
+        document.getElementById('resetBtn').addEventListener('click', resetAll);
+
+        // Добавляем поддержку Enter для удобства
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' && e.target.tagName !== 'BUTTON') {
+                randomizeRoles();
+            }
+        });
+    </script>
+</body>
+</html>
